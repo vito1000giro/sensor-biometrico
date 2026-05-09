@@ -1,0 +1,87 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity tb_sensor_biometrico is
+end tb_sensor_biometrico;
+
+architecture behavior of tb_sensor_biometrico is
+
+component sensor_biometrico
+Port (
+    clk : in STD_LOGIC;
+    reset : in STD_LOGIC;
+    confirmar : in STD_LOGIC;
+    digital_in : in STD_LOGIC;
+    acesso_liberado : out STD_LOGIC;
+    acesso_negado : out STD_LOGIC;
+    led_verde : out STD_LOGIC;
+    led_vermelho : out STD_LOGIC
+);
+end component;
+
+signal clk : STD_LOGIC := '0';
+signal reset : STD_LOGIC := '0';
+signal confirmar : STD_LOGIC := '0';
+signal digital_in : STD_LOGIC := '0';
+
+signal acesso_liberado : STD_LOGIC;
+signal acesso_negado : STD_LOGIC;
+signal led_verde : STD_LOGIC;
+signal led_vermelho : STD_LOGIC;
+
+constant periodo : time := 10 ns;
+
+begin
+
+uut: sensor_biometrico
+port map (
+    clk => clk,
+    reset => reset,
+    confirmar => confirmar,
+    digital_in => digital_in,
+    acesso_liberado => acesso_liberado,
+    acesso_negado => acesso_negado,
+    led_verde => led_verde,
+    led_vermelho => led_vermelho
+);
+
+clk_process : process
+begin
+    clk <= '0';
+    wait for periodo/2;
+
+    clk <= '1';
+    wait for periodo/2;
+end process;
+
+stim_proc : process
+begin
+
+    reset <= '1';
+    wait for 20 ns;
+
+    reset <= '0';
+
+    confirmar <= '1';
+    digital_in <= '1';
+
+    wait for 40 ns;
+
+    confirmar <= '0';
+
+    wait for 40 ns;
+
+    confirmar <= '1';
+    digital_in <= '0';
+
+    wait for 40 ns;
+
+    confirmar <= '0';
+
+    wait for 40 ns;
+
+    wait;
+
+end process;
+
+end behavior;
