@@ -1,0 +1,83 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity sensor_biometrico is
+    Port (
+        clk : in STD_LOGIC;
+        reset : in STD_LOGIC;
+        confirmar : in STD_LOGIC;
+        digital_in : in STD_LOGIC;
+
+        acesso_liberado : out STD_LOGIC;
+        acesso_negado : out STD_LOGIC;
+        led_verde : out STD_LOGIC;
+        led_vermelho : out STD_LOGIC
+    );
+end sensor_biometrico;
+
+architecture Behavioral of sensor_biometrico is
+
+type estado_tipo is (
+    IDLE,
+    LEITURA,
+    VALIDACAO,
+    LIBERADO,
+    NEGADO
+);
+
+signal estado : estado_tipo := IDLE;
+
+begin
+
+process(clk, reset)
+
+begin
+
+    if reset = '1' then
+        estado <= IDLE;
+
+    elsif rising_edge(clk) then
+
+        case estado is
+
+            when IDLE =>
+
+                if confirmar = '1' then
+                    estado <= LEITURA;
+                end if;
+
+            when LEITURA =>
+
+                estado <= VALIDACAO;
+
+            when VALIDACAO =>
+
+                if digital_in = '1' then
+                    estado <= LIBERADO;
+                else
+                    estado <= NEGADO;
+                end if;
+
+            when LIBERADO =>
+
+                estado <= IDLE;
+
+            when NEGADO =>
+
+                estado <= IDLE;
+
+        end case;
+
+    end if;
+
+end process;
+
+acesso_liberado <= '1' when estado = LIBERADO else '0';
+
+acesso_negado <= '1' when estado = NEGADO else '0';
+
+led_verde <= '1' when estado = LIBERADO else '0';
+
+led_vermelho <= '1' when estado = NEGADO else '0';
+
+end Behavioral;
